@@ -3,16 +3,14 @@ import {
   CRow,
   CCol,
   CCard,
-  CCardImage,
   CCardTitle,
   CCardBody,
   CListGroup,
   CListGroupItem,
   CSpinner,
 } from '@coreui/react'
-import avatar0 from 'src/assets/images/avatars/0.jpg'
 import { useLoadClientPrincipalQuery } from 'src/store/api/auth'
-import { ThemeSwitcher, UsageLocation } from 'src/components/utilities'
+import { ThemeSwitcher, UsageLocation, PageSizeSwitcher } from 'src/components/utilities'
 
 const CippProfile = () => {
   const { data: profile, isFetching, isLoading } = useLoadClientPrincipalQuery()
@@ -25,7 +23,6 @@ const CippProfile = () => {
             {(isFetching || isLoading) && <CSpinner />}
             {!isLoading && (
               <>
-                <CCardImage orientation="top" src={avatar0} />
                 <CCardBody>
                   <CCardTitle>{profile.clientPrincipal.userDetails}</CCardTitle>
                 </CCardBody>
@@ -49,6 +46,9 @@ const CippProfile = () => {
         </CCol>
         <CCol>
           <ThemeSwitcher />
+        </CCol>
+        <CCol>
+          <PageSizeSwitcher />
         </CCol>
       </CRow>
       <br></br>

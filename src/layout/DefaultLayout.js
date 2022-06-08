@@ -6,16 +6,25 @@ import { Outlet } from 'react-router-dom'
 import { CContainer } from '@coreui/react'
 import { toggleSwitcher } from 'src/store/features/switcher'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { useMediaPredicate } from 'react-media-hook'
 
 const DefaultLayout = () => {
-  const theme = useSelector((state) => state.app.currentTheme)
+  const preferredTheme = useMediaPredicate('(prefers-color-scheme: dark)') ? 'impact' : 'cyberdrain'
+  const themePreference = useSelector((state) => state.app.currentTheme)
+  const dispatch = useDispatch()
+
+  let theme
+  if (themePreference === 'default') {
+    theme = preferredTheme
+  } else {
+    theme = themePreference
+  }
   useEffect(() => {
     document.body.classList = []
     document.body.classList.add(`theme-${theme}`)
     document.body.dataset.theme = theme
   })
 
-  const dispatch = useDispatch()
   const handleFastSwitcher = useCallback(() => {
     dispatch(toggleSwitcher())
   }, [dispatch])
@@ -42,9 +51,9 @@ const DefaultLayout = () => {
       <FastSwitcherModal />
       <ModalRoot />
       <Toasts />
+      <AppHeader />
       <AppSidebar />
       <div className="wrapper d-flex flex-column min-vh-100">
-        <AppHeader />
         <div className="body flex-grow-1 px-xl-3">
           <CContainer fluid>
             <Suspense fallback={<FullScreenLoading />}>

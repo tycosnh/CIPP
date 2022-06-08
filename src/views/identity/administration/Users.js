@@ -12,7 +12,7 @@ import { CippActionsOffcanvas } from 'src/components/utilities'
 const Offcanvas = (row, rowIndex, formatExtraData) => {
   const tenant = useSelector((state) => state.app.currentTenant)
   const [ocVisible, setOCVisible] = useState(false)
-  const viewLink = `/identity/administration/users/view?userId=${row.id}&tenantDomain=${tenant.defaultDomainName}`
+  const viewLink = `/identity/administration/users/view?userId=${row.id}&tenantDomain=${tenant.defaultDomainName}&userEmail=${row.userPrincipalName}`
   const editLink = `/identity/administration/users/edit?userId=${row.id}&tenantDomain=${tenant.defaultDomainName}`
   //console.log(row)
   return (
@@ -66,10 +66,24 @@ const Offcanvas = (row, rowIndex, formatExtraData) => {
             color: 'info',
           },
           {
+            label: 'Create Temporary Access Password',
+            color: 'info',
+            modal: true,
+            modalUrl: `/api/ExecCreateTAP?TenantFilter=${tenant.defaultDomainName}&ID=${row.userPrincipalName}`,
+            modalMessage: 'Are you sure you want to create a Temporary Access Pass?',
+          },
+          {
+            label: 'Rerequire MFA registration',
+            color: 'info',
+            modal: true,
+            modalUrl: `/api/ExecResetMFA?TenantFilter=${tenant.defaultDomainName}&ID=${row.id}`,
+            modalMessage: 'Are you sure you want to enable MFA for this user?',
+          },
+          {
             label: 'Send MFA Push',
             color: 'info',
             modal: true,
-            modalUrl: `/api/ExecSendPush?TenantFilter=${tenant.defaultDomainName}&UserEmail=${row.mail}`,
+            modalUrl: `/api/ExecSendPush?TenantFilter=${tenant.defaultDomainName}&UserEmail=${row.userPrincipalName}`,
             modalMessage: 'Are you sure you want to send a MFA request?',
           },
           {
@@ -87,6 +101,13 @@ const Offcanvas = (row, rowIndex, formatExtraData) => {
             modalMessage: 'Are you sure you want to block the sign in for this user?',
           },
           {
+            label: 'Unblock Sign In',
+            color: 'info',
+            modal: true,
+            modalUrl: `/api/ExecDisableUser?Enable=true&TenantFilter=${tenant.defaultDomainName}&ID=${row.id}`,
+            modalMessage: 'Are you sure you want to enable this user?',
+          },
+          {
             label: 'Reset Password (Must Change)',
             color: 'info',
             modal: true,
@@ -99,6 +120,13 @@ const Offcanvas = (row, rowIndex, formatExtraData) => {
             modal: true,
             modalUrl: `/api/ExecResetPass?MustChange=false&TenantFilter=${tenant.defaultDomainName}&ID=${row.id}`,
             modalMessage: 'Are you sure you want to reset the password for this user?',
+          },
+          {
+            label: 'Revoke all user sessions',
+            color: 'danger',
+            modal: true,
+            modalUrl: `/api/ExecRevokeSessions?TenantFilter=${tenant.defaultDomainName}&ID=${row.id}`,
+            modalMessage: 'Are you sure you want to revoke this users sessions?',
           },
           {
             label: 'Delete User',
@@ -162,7 +190,9 @@ const columns = [
     name: 'Licenses',
     selector: (row) => row['LicJoined'],
     exportSelector: 'LicJoined',
+    sortable: true,
     grow: 5,
+    wrap: true,
   },
   {
     name: 'id',
@@ -180,6 +210,7 @@ const Users = () => {
   const titleButton = <TitleButton href="/identity/administration/users/add" title="Add User" />
   return (
     <CippPageList
+      capabilities={{ allTenants: false, helpContext: 'https://google.com' }}
       title="Users"
       titleButton={titleButton}
       datatable={{

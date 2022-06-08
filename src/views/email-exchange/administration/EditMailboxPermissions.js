@@ -10,7 +10,6 @@ import {
   CForm,
   CRow,
   CSpinner,
-  CAlert,
 } from '@coreui/react'
 import useQuery from 'src/hooks/useQuery'
 import { useDispatch } from 'react-redux'
@@ -58,19 +57,16 @@ const EditMailboxPermission = () => {
   }, [userId, tenantDomain, dispatch])
   const [genericPostRequest, postResults] = useLazyGenericPostRequestQuery()
   const onSubmit = (values) => {
-    if (!values.AddFullAccess) {
-      values.AddFullAccess = ''
-    }
-    if (!values.RemoveFullAccess) {
-      values.RemoveFullAccess = ''
-    }
-    if (!values.AddFullAccessNoAutoMap) {
-      values.AddFullAccessNoAutoMap = ''
-    }
     const shippedValues = {
       userid: userId,
       tenantFilter: tenantDomain,
-      ...values,
+      AddFullAccessNoAutoMap: values.AddFullAccessNoAutoMap
+        ? values.AddFullAccessNoAutoMap.value
+        : '',
+      AddFullAccess: values.AddFullAccess ? values.AddFullAccess.value : '',
+      RemoveFullAccess: values.RemoveFullAccess ? values.RemoveFullAccess.value : '',
+      AddSendAs: values.AddSendAs ? values.AddSendAs.value : '',
+      RemoveSendAs: values.RemoveSendAs ? values.RemoveSendAs.value : '',
     }
     //window.alert(JSON.stringify(shippedValues))
     genericPostRequest({ path: '/api/ExecEditMailboxPermissions', values: shippedValues })
@@ -86,7 +82,9 @@ const EditMailboxPermission = () => {
     <CCard className="page-card">
       {!queryError && (
         <>
-          {postResults.isSuccess && <CAlert color="success">{postResults.data?.Results}</CAlert>}
+          {postResults.isSuccess && (
+            <CCallout color="success">{postResults.data?.Results}</CCallout>
+          )}
           {queryError && (
             <CRow>
               <CCol md={12}>
@@ -153,6 +151,32 @@ const EditMailboxPermission = () => {
                                 />
                                 {usersError && <span>Failed to load list of users</span>}
                               </CCol>
+                              <CCol md={12}>
+                                <RFFSelectSearch
+                                  label="Add Send-as permissions"
+                                  disabled={formDisabled}
+                                  values={users?.map((user) => ({
+                                    value: user.mail,
+                                    name: user.displayName,
+                                  }))}
+                                  placeholder={!usersIsFetching ? 'Select user' : 'Loading...'}
+                                  name="AddSendAs"
+                                />
+                                {usersError && <span>Failed to load list of users</span>}
+                              </CCol>
+                              <CCol md={12}>
+                                <RFFSelectSearch
+                                  label="Remove Send-as permissions"
+                                  disabled={formDisabled}
+                                  values={users?.map((user) => ({
+                                    value: user.mail,
+                                    name: user.displayName,
+                                  }))}
+                                  placeholder={!usersIsFetching ? 'Select user' : 'Loading...'}
+                                  name="RemoveSendAs"
+                                />
+                                {usersError && <span>Failed to load list of users</span>}
+                              </CCol>
                             </CRow>
                             <CRow className="mb-3">
                               <CCol md={6}>
@@ -170,7 +194,7 @@ const EditMailboxPermission = () => {
                               </CCol>
                             </CRow>
                             {postResults.isSuccess && (
-                              <CAlert color="success">{postResults.data?.Results}</CAlert>
+                              <CCallout color="success">{postResults.data?.Results}</CCallout>
                             )}
                           </CForm>
                         )

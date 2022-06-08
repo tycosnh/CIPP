@@ -87,7 +87,6 @@ const MessageTrace = () => {
     // @todo hook this up
     // genericPostRequest({ path: '/api/AddIntuneTemplate', values })
   }
-
   return (
     <>
       <CRow>
@@ -108,7 +107,7 @@ const MessageTrace = () => {
                     tenantFilter: tenant.defaultDomainName,
                     sender: sender,
                     recipient: recipient,
-                    days: days,
+                    days: 1,
                   }}
                   onSubmit={handleSubmit}
                   render={({ handleSubmit, submitting, values }) => {
@@ -116,7 +115,6 @@ const MessageTrace = () => {
                       <CForm onSubmit={handleSubmit}>
                         <CRow>
                           <CCol>
-                            Select a tenant
                             <TenantSelector />
                           </CCol>
                         </CRow>
@@ -147,9 +145,8 @@ const MessageTrace = () => {
                             <RFFCFormSelect
                               name="days"
                               label="How many days back to search"
-                              placeholder="2"
+                              placeholder="1"
                               values={[
-                                { label: '1', value: '1' },
                                 { label: '2', value: '2' },
                                 { label: '3', value: '3' },
                                 { label: '4', value: '4' },
@@ -189,17 +186,24 @@ const MessageTrace = () => {
       <CippPage title="Message Trace Results" tenantSelector={false}>
         {!SearchNow && <span>Execute a search to get started.</span>}
         {SearchNow && (
-          <CippDatatable
-            reportName={`${tenant?.defaultDomainName}-Messagetrace`}
-            path="/api/listMessagetrace"
-            params={{
-              tenantFilter: tenant.defaultDomainName,
-              sender: sender,
-              recipient: recipient,
-              days: days,
-            }}
-            columns={columns}
-          />
+          <CCard className="content-card">
+            <CCardHeader className="d-flex justify-content-between align-items-center">
+              <CCardTitle>Results</CCardTitle>
+            </CCardHeader>
+            <CCardBody>
+              <CippDatatable
+                reportName={`${tenant?.defaultDomainName}-Messagetrace`}
+                path="/api/listMessagetrace"
+                params={{
+                  tenantFilter: tenant.defaultDomainName,
+                  sender: sender,
+                  recipient: recipient,
+                  days: days,
+                }}
+                columns={columns}
+              />
+            </CCardBody>
+          </CCard>
         )}
       </CippPage>
     </>
